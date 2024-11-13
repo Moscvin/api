@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using api.Data;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
+using api.Models;
 
 
 
@@ -19,7 +20,7 @@ namespace api.Data
 
         }
 
-        // public DbSet<Stock> Stocks { get; set; }
-        // public DbSet<Comment> Comments { get; set; } 
+        public DbSet<Stock> Stocks { get; set; }
+        public DbSet<Comment> Comments { get; set; } 
     }
 }
