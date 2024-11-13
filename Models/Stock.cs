@@ -5,11 +5,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+
 namespace api.Models
 {
     public class Stock
     {
-        public int Id { get; set; }
+        public int Id { get; set; } 
 
         public string Symbol { get; set; } = string.Empty;
 
@@ -27,6 +28,7 @@ namespace api.Models
 
         public long MarketCap { get; set; }
 
+        
         public List<Comment> Comments { get; set; } = new List<Comment>();
 
     }
