@@ -20,5 +20,28 @@ namespace api.Repository
         {
             return _context.Stocks.ToListAsync();
         }
+        public Task<Stock> GetById(int id)
+        {
+            return _context.Stocks.FirstOrDefaultAsync(x => x.Id == id);
+        }
+        public async Task<Stock> Create(Stock stock)
+        {
+            _context.Stocks.Add(stock);
+            await _context.SaveChangesAsync();
+            return stock;
+        }
+        public async Task<Stock> Update(Stock stock)
+        {
+            _context.Stocks.Update(stock);
+            await _context.SaveChangesAsync();
+            return stock;
+        }
+        public async Task<Stock> Delete(int id)
+        {
+            var stock = await _context.Stocks.FirstOrDefaultAsync(x => x.Id == id);
+            _context.Stocks.Remove(stock);
+            await _context.SaveChangesAsync();
+            return stock;
     }
+}
 }

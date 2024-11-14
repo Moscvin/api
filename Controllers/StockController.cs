@@ -37,7 +37,7 @@ namespace api.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var stock = await _context.Stocks.FirstOrDefaultAsync(x => x.Id == id);
+            var stock = await _stockRepo.GetById(id);
 
             if (stock == null)
             {
@@ -60,8 +60,7 @@ namespace api.Controllers
         public async Task<IActionResult> Create([FromBody] CreateStockRequestDto stockDto)
         {
             var stockModel = stockDto.ToStockFromCreateDTO();
-            await _context.Stocks.AddAsync(stockModel);
-            await _context.SaveChangesAsync();
+            await _stockRepo.Create(stockModel);
             return CreatedAtAction(nameof(GetById), new { id = stockModel.Id }, stockModel.ToStockDto());
         }
 
@@ -91,7 +90,7 @@ namespace api.Controllers
         // Metoda asincrona
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateStockRequestDto updateDto)
         {
-            var stockModel = await _context.Stocks.FirstOrDefaultAsync(x => x.Id == id);
+            var stockModel = await _stockRepo.GetById(id);
 
             if (stockModel == null)
             {
@@ -104,8 +103,7 @@ namespace api.Controllers
             stockModel.Industry = updateDto.Industry;
             stockModel.MarketCap = updateDto.MarketCap;
 
-            await _context.SaveChangesAsync();
-
+            await _stockRepo.Update(stockModel);
             return Ok(stockModel.ToStockDto());
         }
 
@@ -128,15 +126,15 @@ namespace api.Controllers
         // Metoda asincrona
         public async Task<IActionResult> Delete(int id)
         {
-            var stockModel = await _context.Stocks.FirstOrDefaultAsync(x => x.Id == id);
+            var stockModel = await _stockRepo.Delete(id);
 
             if (stockModel == null)
             {
                 return NotFound();
             }
 
-            _context.Stocks.Remove(stockModel);
-            await _context.SaveChangesAsync();
+            _stockRepo.Delete(id);
+            await _stockRepo.Delete(id);
 
             return NoContent();
         }

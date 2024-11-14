@@ -9,5 +9,10 @@ namespace api.Interfaces
     public interface IStockRepository
     {
         Task<List<Stock>> GetAllSync();
+        Task<Stock> GetById(int id);
+        Task<Stock> Create(Stock stock);
+        Task<Stock> Update(Stock stock);
+
+        Task<Stock> Delete(int id);
     }
 }
