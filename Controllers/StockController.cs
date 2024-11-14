@@ -5,6 +5,8 @@ using api.Data;
 using api.Mappers;
 using api.Models;
 using api.Dtos.Stock;
+using Microsoft.EntityFrameworkCore;
+using api.Interfaces;
 
 
 namespace api.Controllers
@@ -14,18 +16,20 @@ namespace api.Controllers
     public class StockController : ControllerBase
     {
         private readonly ApplicationDBContext _context;
+        private readonly IStockRepository _stockRepo;
 
-        public StockController(ApplicationDBContext context)
+        public StockController(ApplicationDBContext context, IStockRepository stockRepository)
         {
+            _stockRepo = stockRepository;
             _context = context;
         }
 
         // Endpoint pentru a obține toate înregistrările Stock
         [HttpGet]
-        public IActionResult GetAll()
+        public  async Task<IActionResult> GetAll()
         {
-            var stocks = _context.Stocks.ToList()
-            .Select(s => s.ToStockDto());
+            var stocks = await _stockRepo.GetAllSync();
+            var stockDto = stocks.Select(s => s.ToStockDto());
             return Ok(stocks);
         }
 
@@ -33,7 +37,7 @@ namespace api.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var stock = await _context.Stocks.FindAsync(id);
+            var stock = await _context.Stocks.FirstOrDefaultAsync(x => x.Id == id);
 
             if (stock == null)
             {
@@ -61,7 +65,7 @@ namespace api.Controllers
             return CreatedAtAction(nameof(GetById), new { id = stockModel.Id }, stockModel.ToStockDto());
         }
 
-        
+
 
         [HttpPut("{id}")]
 
@@ -84,9 +88,10 @@ namespace api.Controllers
 
         //     return Ok(stockModel.ToStockDto());
         // }
+        // Metoda asincrona
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateStockRequestDto updateDto)
         {
-            var stockModel = await _context.Stocks.FindAsync(id);
+            var stockModel = await _context.Stocks.FirstOrDefaultAsync(x => x.Id == id);
 
             if (stockModel == null)
             {
@@ -102,6 +107,38 @@ namespace api.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(stockModel.ToStockDto());
+        }
+
+        [HttpDelete("{id}")]
+
+        // public IActionResult Delete(int id)
+        // {
+        //     var stockModel = _context.Stocks.FirstOrDefault(x => x.Id == id);
+
+        //     if (stockModel == null)
+        //     {
+        //         return NotFound();
+        //     }
+
+        //     _context.Stocks.Remove(stockModel);
+        //     _context.SaveChanges();
+
+        //     return NoContent();
+        // }
+        // Metoda asincrona
+        public async Task<IActionResult> Delete(int id)
+        {
+            var stockModel = await _context.Stocks.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (stockModel == null)
+            {
+                return NotFound();
+            }
+
+            _context.Stocks.Remove(stockModel);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }
