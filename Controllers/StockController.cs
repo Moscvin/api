@@ -44,13 +44,64 @@ namespace api.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] CreateStockRequestDto stockDto)
+        // public IActionResult Create([FromBody] CreateStockRequestDto stockDto)
+        // {
+        //     var stockModel = stockDto.ToStockFromCreateDTO();
+        //     _context.Stocks.Add(stockModel);
+        //     _context.SaveChanges();
+        //     return CreatedAtAction(nameof(GetById), new { id = stockModel.Id }, stockModel.ToStockDto());
+        // }
+
+        // Metoda asincrona
+        public async Task<IActionResult> Create([FromBody] CreateStockRequestDto stockDto)
         {
             var stockModel = stockDto.ToStockFromCreateDTO();
-            _context.Stocks.Add(stockModel);
-            _context.SaveChanges();
+            await _context.Stocks.AddAsync(stockModel);
+            await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetById), new { id = stockModel.Id }, stockModel.ToStockDto());
         }
 
+        
+
+        [HttpPut("{id}")]
+
+        // public IActionResult Update([FromRoute] int id, [FromBody] UpdateStockRequestDto updateDto)
+        // {
+        //     var stockModel = _context.Stocks.FirstOrDefault(x => x.Id == id);
+
+        //     if (stockModel == null)
+        //     {
+        //         return NotFound();
+        //     }
+        //     stockModel.Symbol = updateDto.Symbol;
+        //     stockModel.CompanyName = updateDto.CompanyName;
+        //     stockModel.Purchase = updateDto.Purchase;
+        //     stockModel.LastDiv = updateDto.LastDiv;
+        //     stockModel.Industry = updateDto.Industry;
+        //     stockModel.MarketCap = updateDto.MarketCap;
+
+        //     _context.SaveChanges();
+
+        //     return Ok(stockModel.ToStockDto());
+        // }
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateStockRequestDto updateDto)
+        {
+            var stockModel = await _context.Stocks.FindAsync(id);
+
+            if (stockModel == null)
+            {
+                return NotFound();
+            }
+            stockModel.Symbol = updateDto.Symbol;
+            stockModel.CompanyName = updateDto.CompanyName;
+            stockModel.Purchase = updateDto.Purchase;
+            stockModel.LastDiv = updateDto.LastDiv;
+            stockModel.Industry = updateDto.Industry;
+            stockModel.MarketCap = updateDto.MarketCap;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(stockModel.ToStockDto());
+        }
     }
 }
