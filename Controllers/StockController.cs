@@ -1,13 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using api.Data;
-using api.Mappers;
-using api.Models;
-using api.Dtos.Stock;
-using Microsoft.EntityFrameworkCore;
 using api.Interfaces;
-
+using api.Models;
+using api.Mappers;
+using api.Dtos.Stock;
 
 namespace api.Controllers
 {
@@ -15,29 +13,27 @@ namespace api.Controllers
     [ApiController]
     public class StockController : ControllerBase
     {
-        private readonly ApplicationDBContext _context;
         private readonly IStockRepository _stockRepo;
 
-        public StockController(ApplicationDBContext context, IStockRepository stockRepository)
+        public StockController(IStockRepository stockRepository)
         {
             _stockRepo = stockRepository;
-            _context = context;
         }
 
         // Endpoint pentru a obține toate înregistrările Stock
         [HttpGet]
-        public  async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll()
         {
             var stocks = await _stockRepo.GetAllSync();
-            var stockDto = stocks.Select(s => s.ToStockDto());
-            return Ok(stocks);
+            var stockDto = stocks.Select(s => s.ToStockDto()).ToList(); // Convertire la DTO
+            return Ok(stockDto);
         }
 
         // Endpoint pentru a obține o înregistrare Stock după ID
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var stock = await _stockRepo.GetById(id);
+            var stock = await _stockRepo.GetByIdAsync(id);
 
             if (stock == null)
             {
@@ -48,93 +44,35 @@ namespace api.Controllers
         }
 
         [HttpPost]
-        // public IActionResult Create([FromBody] CreateStockRequestDto stockDto)
-        // {
-        //     var stockModel = stockDto.ToStockFromCreateDTO();
-        //     _context.Stocks.Add(stockModel);
-        //     _context.SaveChanges();
-        //     return CreatedAtAction(nameof(GetById), new { id = stockModel.Id }, stockModel.ToStockDto());
-        // }
-
-        // Metoda asincrona
         public async Task<IActionResult> Create([FromBody] CreateStockRequestDto stockDto)
         {
             var stockModel = stockDto.ToStockFromCreateDTO();
-            await _stockRepo.Create(stockModel);
-            return CreatedAtAction(nameof(GetById), new { id = stockModel.Id }, stockModel.ToStockDto());
+            var createdStock = await _stockRepo.CreateAsync(stockModel); // Numele metodei corectat
+            return CreatedAtAction(nameof(GetById), new { id = createdStock.Id }, createdStock.ToStockDto());
         }
 
-
-
         [HttpPut("{id}")]
-
-        // public IActionResult Update([FromRoute] int id, [FromBody] UpdateStockRequestDto updateDto)
-        // {
-        //     var stockModel = _context.Stocks.FirstOrDefault(x => x.Id == id);
-
-        //     if (stockModel == null)
-        //     {
-        //         return NotFound();
-        //     }
-        //     stockModel.Symbol = updateDto.Symbol;
-        //     stockModel.CompanyName = updateDto.CompanyName;
-        //     stockModel.Purchase = updateDto.Purchase;
-        //     stockModel.LastDiv = updateDto.LastDiv;
-        //     stockModel.Industry = updateDto.Industry;
-        //     stockModel.MarketCap = updateDto.MarketCap;
-
-        //     _context.SaveChanges();
-
-        //     return Ok(stockModel.ToStockDto());
-        // }
-        // Metoda asincrona
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateStockRequestDto updateDto)
         {
-            var stockModel = await _stockRepo.GetById(id);
+            var updatedStock = await _stockRepo.UpdateAsync(id, updateDto); // Numele metodei corectat
 
-            if (stockModel == null)
+            if (updatedStock == null)
             {
                 return NotFound();
             }
-            stockModel.Symbol = updateDto.Symbol;
-            stockModel.CompanyName = updateDto.CompanyName;
-            stockModel.Purchase = updateDto.Purchase;
-            stockModel.LastDiv = updateDto.LastDiv;
-            stockModel.Industry = updateDto.Industry;
-            stockModel.MarketCap = updateDto.MarketCap;
 
-            await _stockRepo.Update(stockModel);
-            return Ok(stockModel.ToStockDto());
+            return Ok(updatedStock.ToStockDto());
         }
 
         [HttpDelete("{id}")]
-
-        // public IActionResult Delete(int id)
-        // {
-        //     var stockModel = _context.Stocks.FirstOrDefault(x => x.Id == id);
-
-        //     if (stockModel == null)
-        //     {
-        //         return NotFound();
-        //     }
-
-        //     _context.Stocks.Remove(stockModel);
-        //     _context.SaveChanges();
-
-        //     return NoContent();
-        // }
-        // Metoda asincrona
         public async Task<IActionResult> Delete(int id)
         {
-            var stockModel = await _stockRepo.Delete(id);
+            var deletedStock = await _stockRepo.DeleteAsync(id); // Numele metodei corectat
 
-            if (stockModel == null)
+            if (deletedStock == null)
             {
                 return NotFound();
             }
-
-            _stockRepo.Delete(id);
-            await _stockRepo.Delete(id);
 
             return NoContent();
         }
