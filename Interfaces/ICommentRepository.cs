@@ -14,6 +14,8 @@ namespace api.Interfaces
 
         Task<Comment> CreateAsync(Comment commentModel);
 
+        Task<Comment?> UpdateAsync(int id, Comment commentModel);
+
 
     }
 }
