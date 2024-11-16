@@ -12,5 +12,7 @@ namespace api.Interfaces
         Task<Stock> CreateAsync(Stock stockModel); // Numele corectat pentru a se potrivi cu controller-ul
         Task<Stock?> UpdateAsync(int id, UpdateStockRequestDto stockDto); // Numele corectat
         Task<Stock?> DeleteAsync(int id); // Numele corectat
+
+        Task<bool> StockExists(int d);
     }
 }

@@ -16,9 +16,22 @@ namespace api.Repository
         {
             _context = context;
         }
+
+        public async Task<Comment> CreateAsync(Comment commentModel)
+        {
+            await _context.Comments.AddAsync(commentModel);
+            await _context.SaveChangesAsync();
+            return commentModel;
+        }
+
         public async Task<List<Comment>> GetAllSync()
         {
             return await _context.Comments.ToListAsync();
+        }
+
+        public Task<Comment> GetByIdSync(int id)
+        {
+            return _context.Comments.FirstOrDefaultAsync(c => c.Id == id);
         }
     }
 }
